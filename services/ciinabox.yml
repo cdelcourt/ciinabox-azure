@@ -1,0 +1,28 @@
+# ciinabox core services configuration
+# app_data:
+#   image: alpine:3.2
+#   command: echo "creating data container"
+#   volumes:
+#     - /data:/data
+#     - /etc/localtime:/etc/localtime
+
+app_data:
+  image: base2/ciinabox-app-data
+  volumes:
+    - /data:/data
+    - /etc/localtime:/etc/localtime
+
+proxy:
+  image: jwilder/nginx-proxy
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+  ports:
+    - 80:80
+
+app:
+  image: nginx
+  environment:
+    - VIRTUAL_HOST=ciinabox-<%=ciinabox_name%>.cloudapp.net
+    - VIRTUAL_PORT=80
+  volumes_from:
+    - app_data

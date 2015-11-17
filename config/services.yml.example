@@ -1,0 +1,4 @@
+# ciinabox services configuration
+services:
+  - jenkins
+  - docker-registry

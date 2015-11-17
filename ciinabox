@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source /usr/local/rvm/scripts/rvm
+rvm use default
+
+if [ ! -f '/opt/ciinabox/Gemfile.lock' ]; then
+  gem install bundler
+  bundle install
+fi
+
+ARGS=$@
+if [ $# -eq 0 ]
+  then
+    ARGS="status"
+fi
+
+rake ciinabox:$ARGS

@@ -1,0 +1,30 @@
+#ciinabox default config
+ciinabox_version: 0.1
+
+ciinabox_name: <%= ciinabox_name %>
+
+azure_profile: <%= ciinabox_name %>
+
+ciinabox_region: <%= ciinabox_region %>
+
+#log level - change to :debug to see the commands being executed
+log_level: :info
+
+#change this to your own dns_domain
+dns_resource_group: <%= ciinabox_dns_resource_group %>
+dns_domain: <%= ciinabox_tools_domain %>
+
+azure_vm: b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04-LTS-amd64-server-20140724-en-us-30GB
+azure_vm_size: Medium
+azure_username: ciinabox
+azure_password: C11n@box
+
+#Environment Access
+#add list of public IP addresses you want to access the environment from
+#default to public access probably best to change this
+opsAccess:
+  - 0.0.0.0/0
+#add list of public IP addresses for your developers to access the environment
+#default to public access probably best to change this
+devAccess:
+  - 0.0.0.0/0

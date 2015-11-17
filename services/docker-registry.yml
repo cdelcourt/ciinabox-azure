@@ -1,0 +1,9 @@
+docker_registry:
+  image: registry:2
+  environment:
+    - VIRTUAL_HOST=docker_registry.*
+    - VIRTUAL_PORT=5000
+  volumes_from:
+    - ciinabox_app_data_1
+  volumes:
+    - /data/registry:/var/lib/registry
