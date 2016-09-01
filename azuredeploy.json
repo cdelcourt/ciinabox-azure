@@ -1,0 +1,299 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "region": {
+      "type": "string",
+      "defaultValue": "australiaeast",
+      "metadata": {
+        "description": "Location where resources will be provisioned."
+      }
+    },
+    "namespace": {
+      "type": "string",
+      "defaultValue": "staging",
+      "metadata": {
+        "description": "Shortname Environment name"
+      }
+    },
+    "ciinaboxDomain": {
+      "type": "string",
+      "defaultValue": "jenkins.tools.example.com",
+      "metadata": {
+        "description": "URL for Jenkins"
+      }
+    },
+    "icingaDomain": {
+      "type": "string",
+      "defaultValue": "icinga.tools.example.com",
+      "metadata": {
+        "description": "URL for Icinga2 Monitoring env"
+      }
+    },
+    "enableMonitoring": {
+      "type": "bool",
+      "defaultValue": "true",
+      "metadata": {
+        "description": "Include the Icinga2 Monitoring stack"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "ciinabox",
+      "metadata": {
+        "description": "Full environment name (for tags, etc.)"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "ciinabox",
+      "metadata": {
+        "description": "Name of the virtual network provisioned for the cluster"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Administrator user name used when provisioning virtual machines"
+      }
+    },
+    "sshKeyData": {
+        "type": "String",
+        "metadata": {
+            "description": "SSH RSA public key file as a string."
+        }
+    },
+    "dnsNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS Name for the publicly accessible app node. Must be lowercase. It should match with the following regular expression: ^[a-z][a-z0-9-]{1,61}[a-z0-9]$ or it will raise an error."
+      }
+    },
+    "ciinaboxVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "allowedValues": [
+        "Standard_D1_V2",
+        "Standard_D2_V2"
+      ],
+      "metadata": {
+        "description": "The size of the virtual machines used when provisioning the Ciinabox node"
+      }
+    },
+    "icingaVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "allowedValues": [
+        "Standard_D1_V2",
+        "Standard_D2_V2"
+      ],
+      "metadata": {
+        "description": "The size of the virtual machines used when provisioning the Icinga2 node"
+      }
+    },
+    "storageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+      "Standard_LRS",
+      "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "The type of storage account used for the deployment"
+      }
+    },
+    "bootstrapScript": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Location of the bootstrap script that will run chef on the instances"
+      }
+    }
+  },
+  "variables": {
+    "templateBaseUrl": "https://raw.githubusercontent.com/cdelcourt/ciinabox-azure/master/",
+    "sharedTemplateUrl": "[concat(variables('templateBaseUrl'), 'templates/shared.json')]",
+    "ciinaboxTemplateUrl": "[concat(variables('templateBaseUrl'), 'templates/ciinabox.json')]",
+    "icingaTemplateUrl": "[concat(variables('templateBaseUrl'), 'templates/icinga.json')]",
+    "ciinaboxBootstrapUrl": "[concat(variables('templateBaseUrl'), 'scripts/ciinabox_bootstrap.sh')]",
+    "icingaBootstrapUrl": "[concat(variables('templateBaseUrl'), 'scripts/icinga_bootstrap.sh')]",
+    "namespace": "[concat(parameters('namespace'), '-')]",
+	"apiVersion": "2015-01-01",
+    "networkSettings": {
+      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "addressPrefix": "10.0.0.0/16",
+      "subnet": {
+        "dse": {
+          "name": "dse",
+          "prefix": "10.0.0.0/24",
+          "vnet": "[parameters('virtualNetworkName')]"
+        }
+      },
+      "statics": {
+        "clusterRange": {
+          "base": "10.0.0.",
+          "start": 5
+        },
+        "ciinaboxip": "10.0.0.50",
+        "icingaip": "10.0.0.100"
+      }
+    },
+    "ciinaboxOsSettings": {
+      "imageReference": {
+        "publisher": "OpenLogic",
+        "offer": "CentOS",
+        "sku": "7.1",
+        "version": "latest"
+      },
+      "scripts": [
+        "[variables('ciinaboxBootstrapUrl')]"
+      ]
+    },
+    "icingaOsSettings": {
+      "imageReference": {
+        "publisher": "OpenLogic",
+        "offer": "CentOS",
+        "sku": "7.1",
+        "version": "latest"
+      },
+      "scripts": [
+        "[variables('icingaBootstrapUrl')]"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "name": "[concat(parameters('environment'), '-Shared-Stack')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('sharedTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "region": {
+            "value": "[parameters('region')]"
+          },
+          "storageType": {
+            "value": "[parameters('storageType')]"
+          },
+          "namespace": {
+            "value": "[parameters('namespace')]"
+          },
+          "networkSettings": {
+            "value": "[variables('networkSettings')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('environment'), '-ciinabox-Stack')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', parameters('environment'), '-Shared-Stack')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('ciinaboxTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "region": {
+            "value": "[parameters('region')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "sshKeyData": {
+            "value": "[parameters('sshKeyData')]"
+          },
+          "namespace": {
+            "value": "[parameters('namespace')]"
+          },
+          "vmbasename": {
+            "value": "[concat(parameters('namespace'), '-ciinabox-host')]"
+          },
+          "subnet": {
+            "value": "[variables('networkSettings').subnet.dse]"
+          },
+          "dnsname": {
+            "value": "[parameters('dnsNamePrefix')]"
+          },
+          "staticIp": {
+            "value": "[variables('networkSettings').statics.ciinaboxip]"
+          },
+          "vmSize": {
+            "value": "[parameters('ciinaboxVmSize')]"
+          },
+          "ciinaboxDomain": {
+            "value": "[parameters('ciinaboxDomain')]"
+          },
+          "osSettings": {
+            "value": "[variables('ciinaboxOsSettings')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('environment'), '-icinga-Stack')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersion')]",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/', parameters('environment'), '-Shared-Stack')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('icingaTemplateUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "region": {
+            "value": "[parameters('region')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "sshKeyData": {
+            "value": "[parameters('sshKeyData')]"
+          },
+          "namespace": {
+            "value": "[parameters('namespace')]"
+          },
+          "vmbasename": {
+            "value": "[concat(parameters('namespace'), '-icinga-host')]"
+          },
+          "subnet": {
+            "value": "[variables('networkSettings').subnet.dse]"
+          },
+          "dnsname": {
+            "value": "[parameters('dnsNamePrefix')]"
+          },
+          "staticIp": {
+            "value": "[variables('networkSettings').statics.icingaip]"
+          },
+          "vmSize": {
+            "value": "[parameters('icingaVmSize')]"
+          },
+          "icingaDomain": {
+            "value": "[parameters('icingaDomain')]"
+          },
+          "osSettings": {
+            "value": "[variables('icingaOsSettings')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

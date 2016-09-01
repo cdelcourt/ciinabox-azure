@@ -1,0 +1,7 @@
+{
+  "itemDisplayName": "Deploy a CentOS Server w/ Ciinabox (Jenkins)",
+  "description": "This deploys a template that contains 2x CentOS servers, publically accessible, with Jenkins and its slave running in Docker, behind jwilder's nginx reverse proxy, and a server running Icinga2",
+  "summary": "CI-In-A-Box",
+  "githubUsername": "cdelcourt",
+  "dateUpdated": "2016-08-25"
+}

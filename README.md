@@ -3,6 +3,8 @@
 ciinabox (CI in a Box) pronounced ciin a box is a set of automation for building
 and managing a bunch of CI tools in Azure.
 
+![http://azuredeploy.net/deploybutton.png](https://azuredeploy.net/?repository=https://github.com/base2services/ciinabox-azure)
+
 Right Now ciinabox supports deploying:
 
  * jenkins
@@ -11,45 +13,14 @@ Right Now ciinabox supports deploying:
 
 ## Setup
 
-requires docker 1.6+ and docker-machine 0.5+
-just install docker toolbox https://www.docker.com/docker-toolbox
-
-1. docker-machine create -d virtualbox ciinabox
-2. eval $(docker-machine env ciinabox)
-3. docker pull base2/ciinabox-azure
-4. mkdir /somepath/ciinaboxes
-5. cd /somepath/ciinaboxes
-6. docker run --rm -it -v `pwd`:/opt/ciinabox/ciinaboxes base2/ciinabox-azure
+Requires an Azure subscription.
 
 ## Getting Started
 
-1. Initialize/Create a new ciinabox environment
-  ```bash
-  $ ./ciinabox init
-  Enter the name of ypur ciinabox:
-  myciinabox
-  ```
-  You can override the default ciinaboxes directory by setting the CIINABOXES_DIR environment variable. Also the DNS domain you entered about must already exist in Azure DNS
+1. Ensure you are logged into the correct Azure subscription in your browser and then click the 'Deploy to Azure' button above.
 
-2. check that your new ciinabox is the current active one and login to azure
-  ```bash
-  $ ./ciinabox login
-  # Enable active ciinabox by executing or override ciinaboxes base directory:
-  export CIINABOXES_DIR="ciinaboxes/"
-  export CIINABOX="myciinabox"
-  # or run
-  eval $(./ciinabox login[myciinabox])
-  ```
+2. Fill in the parameters for the environment. It is recommended to deploy to a new resource group rather than an existing one.
 
-9. Create/Lanuch ciinabox environment
-  ```bash
-  $ rake ciinabox:create
-  Starting updating of ciinabox environment
-  # checking status using
-  $ rake ciinabox:status
-  allday ciinabox is in state: CREATE_IN_PROGRESS
-  # When your ciinabox environment is ready the status will be
-  allday ciinabox is alive!!!!
-  ECS cluster private ip:10.xx.xx.xx
-  ```
-  You can access jenkins using http://jenkins.myciinabox.com
+3. Once the deployment shows as 'Successful', it may take a few more minutes for Docker to complete pulling the images and for Jenkins to start
+
+4. You will be able to access Jenkins using the URL that you've placed in Step 2 in the 'ciinaboxDomain' parameter
