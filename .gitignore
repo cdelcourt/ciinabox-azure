@@ -3,4 +3,3 @@ Gemfile.lock
 ciinaboxes/
 config/default_params.yml
 ssl/
-templates/
