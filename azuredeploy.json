@@ -11,7 +11,7 @@
     },
     "namespace": {
       "type": "string",
-      "defaultValue": "staging",
+      "defaultValue": "ciinabox",
       "metadata": {
         "description": "Shortname Environment name"
       }
@@ -30,16 +30,9 @@
         "description": "URL for Icinga2 Monitoring env"
       }
     },
-    "enableMonitoring": {
-      "type": "bool",
-      "defaultValue": "true",
-      "metadata": {
-        "description": "Include the Icinga2 Monitoring stack"
-      }
-    },
     "environment": {
       "type": "string",
-      "defaultValue": "ciinabox",
+      "defaultValue": "ci",
       "metadata": {
         "description": "Full environment name (for tags, etc.)"
       }
@@ -100,13 +93,6 @@
       ],
       "metadata": {
         "description": "The type of storage account used for the deployment"
-      }
-    },
-    "bootstrapScript": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Location of the bootstrap script that will run chef on the instances"
       }
     }
   },

@@ -35,35 +35,14 @@
     "sshKeyData": {
       "value": ""
     },
-    "appVmSize": {
+    "ciinaboxVmSize": {
       "value": "Standard_A1"
     },
-    "dbVmSize": {
+    "icingaVmSize": {
       "value": "Standard_A1"
-    },
-    "natVmSize": {
-      "value": "Standard_A1"
-    },
-    "nasVmSize": {
-      "value": "Standard_A1"
-    },
-    "appNodes": {
-      "value": 1
-    },
-    "dbNodes": {
-      "value": 1
-    },
-    "natNodes": {
-      "value": 1
-    },
-    "nasNodes": {
-      "value": 1
     },
     "storageType": {
       "value": "Standard_LRS"
-    },
-    "bootstrapScript": {
-      "value": "[concat('http://ciinabox-azure.blob.core.windows.net/templates/', parameters('templateVersion'), '/bootstrap.sh?', parameters('sasToken'))]"
     }
   }
 }

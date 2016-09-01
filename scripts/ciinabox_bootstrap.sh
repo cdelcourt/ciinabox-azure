@@ -38,7 +38,7 @@ mkdir /data/jenkins-dind
 chmod -R 777 /data
 chown 1000:1000 /data/jenkins /data/jenkins-dind
 
-# Configure and run the Ciinabox containers in screen
+# Configure and run the Ciinabox containers
 docker run -d --name nginx-proxy -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy
 docker run -d --name ciinabox-slave-jenkins --privileged=true -e PORT=4444 -p 4444:4444 -p 2223:22 -v /data/jenkins-dind/:/var/lib/docker base2/ciinabox-jenkins-slave start-dind
 docker run -d --name ciinabox-jenkins -e VIRTUAL_HOST=$DOMAIN_NAME -e VIRTUAL_PORT=8080 -v /data/jenkins:/var/jenkins_home base2/ciinabox-jenkins:2

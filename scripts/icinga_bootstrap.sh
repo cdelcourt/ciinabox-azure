@@ -4,27 +4,20 @@ export REGION=$1
 export AZURE_TAG_ROLE=$2
 export ENVIRONMENT_TYPE=$3
 export DOMAIN_NAME=$4
+export PAGERDUTY_API_KEY=$5
 
 export HOME=/root
 
-# Likely not required, but if access is needed to pull from storage accounts fill in the following
-export AZURE_STORAGE_ACCOUNT=
-export AZURE_STORAGE_ACCESS_KEY=
 
 #If npm doesn't exist, install npm and Azure CLI
 rpm -qa | grep -qw "epel-release" || yum install -y epel-release
 rpm -qa | grep -qw nodejs || curl --silent --location https://rpm.nodesource.com/setup_4.x | bash - && yum install -y nodejs && npm install -g azure-cli
 rpm -qa | grep -qw python-pip || yum install -y python-pip
+rpm -qa | grep -qw chef || yum install -y https://packages.chef.io/stable/el/7/chef-12.10.24-1.el7.x86_64.rpm
 
 if [ -f /etc/profile.d/env.sh ]; then
   source /etc/profile.d/env.sh
 fi
-
-# Configure and start the docker service
-#yum update -y ### REMEMBER TO EXCLUDE WAAGENT WHEN RE-ENABLING THIS
-yum install screen -y
-curl -fsSL https://get.docker.com/ | sh
-service docker start
 
 # Mount data volume - sdc because sdb = temporary SSD storage
 echo '/dev/sdc   /data        ext4    defaults,nofail 0   2' >> /etc/fstab
@@ -32,13 +25,32 @@ rm -rf /data && mkdir -p /data
 mount /data && echo \"Data volume already formatted\" || mkfs -F -t ext4 /dev/sdc
 mount -a && echo 'Mounting Data volume' || echo 'Failed to mount Data volume'
 
-# Prepare directories
-mkdir /data/jenkins
-mkdir /data/jenkins-dind
-chmod -R 777 /data
-chown 1000:1000 /data/jenkins /data/jenkins-dind
+# Install docker
+curl -fsSL https://get.docker.com/ | sh
+service docker start
 
-# Configure and run the Ciinabox containers in screen
-docker run -d --name nginx-proxy -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro jwilder/nginx-proxy
-docker run -d --name ciinabox-slave-jenkins --privileged=true -e PORT=4444 -p 4444:4444 -p 2223:22 -v /data/jenkins-dind/:/var/lib/docker base2/ciinabox-jenkins-slave start-dind
-docker run -d --name ciinabox-jenkins -e VIRTUAL_HOST=$DOMAIN_NAME -e VIRTUAL_PORT=8080 -v /data/jenkins:/var/jenkins_home base2/ciinabox-jenkins:2
+# Install git
+yum -y install git
+
+# Prepare directories
+mkdir -p /etc/chef/cookbooks/base2-icinga2-docker
+chmod -R 777 /etc/chef
+
+# Install cookbook
+git clone https://github.com/base2Services/base2-icinga2-docker-cookbook.git /etc/chef/cookbooks/base2-icinga2-docker
+
+# Install RVM for later version of ruby/gem than CentOS base repo provides
+curl -sSL https://get.rvm.io | bash -s stable --ruby
+source /etc/profile.d/rvm.sh
+rvm install 2.3.1
+
+# Install berkshelf for cookbook dependancies
+gem install berkshelf
+
+cd /etc/chef/cookbooks/base2-icinga2-docker
+berks install
+berks vendor /etc/chef/cookbooks/
+
+# Run chef
+cd /etc/chef
+/opt/chef/bin/chef-client --local-mode -o "recipe[base2-icinga2-docker::install],recipe[base2-icinga2-docker::run]" > /etc/chef/bootstrap.log
