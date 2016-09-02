@@ -134,11 +134,11 @@
 	"apiVersion": "2015-01-01",
     "networkSettings": {
       "virtualNetworkName": "[parameters('virtualNetworkName')]",
-      "addressPrefix": "[concat('10.' parameters('stackOctet'), '0.0/16')]",
+      "addressPrefix": "[concat('10.', parameters('stackOctet'), '0.0/16')]",
       "subnet": {
         "dse": {
           "name": "dse",
-          "prefix": "[concat('10.' parameters('stackOctet'), '0.0/24')]",
+          "prefix": "[concat('10.', parameters('stackOctet'), '0.0/24')]",
           "vnet": "[parameters('virtualNetworkName')]"
         }
       },
@@ -147,8 +147,8 @@
           "base": "10.0.0.",
           "start": 5
         },
-        "ciinaboxip": "[concat('10.' parameters('stackOctet'), '0.50')]",
-        "icingaip": "[concat('10.' parameters('stackOctet'), '0.100')]"
+        "ciinaboxip": "[concat('10.', parameters('stackOctet'), '0.50')]",
+        "icingaip": "[concat('10.', parameters('stackOctet'), '0.100')]"
       }
     },
     "ciinaboxOsSettings": {
