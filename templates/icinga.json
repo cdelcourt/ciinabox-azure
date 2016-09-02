@@ -41,7 +41,7 @@
     "subnet": {
       "type": "object"
     },
-    "icingaDomain": {
+    "orgName": {
       "type": "string"
     },
     "staticIp": {
@@ -239,7 +239,7 @@
         "settings": {
 		  "autoUpgradeMinorVersion": true,
           "fileUris": "[parameters('osSettings').scripts]",
-          "commandToExecute": "[concat('bash icinga_bootstrap.sh ', variables('trimRegion'), ' icinga ', parameters('environment'), ' ', parameters('icingaDomain'))]"
+          "commandToExecute": "[concat('bash icinga_bootstrap.sh ', variables('trimRegion'), ' icinga ', parameters('environment'), ' ', parameters('orgName'))]"
         }
       }
     }

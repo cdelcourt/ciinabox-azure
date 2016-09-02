@@ -23,11 +23,11 @@
         "description": "URL for Jenkins"
       }
     },
-    "icingaDomain": {
+    "orgName": {
       "type": "string",
-      "defaultValue": "icinga.tools.example.com",
+      "defaultValue": "ACMEInc",
       "metadata": {
-        "description": "URL for Icinga2 Monitoring env"
+        "description": "Name for Icinga2 Monitoring env. Avoid using spaces."
       }
     },
     "environment": {
@@ -310,8 +310,8 @@
           "vmSize": {
             "value": "[parameters('icingaVmSize')]"
           },
-          "icingaDomain": {
-            "value": "[parameters('icingaDomain')]"
+          "orgName": {
+            "value": "[parameters('orgName')]"
           },
           "osSettings": {
             "value": "[variables('icingaOsSettings')]"
