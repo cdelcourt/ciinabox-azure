@@ -25,9 +25,9 @@ rm -rf /data && mkdir -p /data
 mount /data && echo \"Data volume already formatted\" || mkfs -F -t ext4 /dev/sdc
 mount -a && echo 'Mounting Data volume' || echo 'Failed to mount Data volume'
 
-# Install docker
-docker ps || curl -fsSL https://get.docker.com/ | sh
-service docker start
+# Install docker - disabled for now while icinga recipe includes docker install
+#docker ps || curl -fsSL https://get.docker.com/ | sh
+#service docker start
 
 # Install git
 yum -y install git
@@ -35,6 +35,22 @@ yum -y install git
 # Prepare directories
 mkdir -p /etc/chef/cookbooks/base2-icinga2-docker
 chmod -R 777 /etc/chef
+
+cat <<EOT > /etc/chef/override.json
+{
+  "base2": {
+    "environment": {
+      "platform": "azure"
+    },
+    "icinga2": {
+      "pagerduty": {
+        "api_key": "$PAGERDUTY_API_KEY"
+      },
+      "org": "$DOMAIN_NAME"
+    }
+  }
+}
+EOT
 
 # Install cookbook
 git clone https://github.com/base2Services/base2-icinga2-docker-cookbook.git /etc/chef/cookbooks/base2-icinga2-docker
@@ -57,4 +73,4 @@ berks vendor /etc/chef/cookbooks/
 
 # Run chef
 cd /etc/chef
-/opt/chef/bin/chef-client --local-mode -o "recipe[base2-icinga2-docker::install],recipe[base2-icinga2-docker::run]" > /etc/chef/bootstrap.log
+/opt/chef/bin/chef-client --local-mode -j /etc/chef/override.json -o "recipe[base2-icinga2-docker::install],recipe[base2-icinga2-docker::run]" > /etc/chef/bootstrap.log

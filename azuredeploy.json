@@ -57,6 +57,20 @@
         "description": "Value of second network octet"
       }
     },
+    "allowedNetwork": {
+      "type": "string",
+      "defaultValue": "169.254.169.254/32",
+      "metadata": {
+        "description": "CIDR value of network you wish to access the environment from"
+      }
+    },
+    "monitoringNetwork": {
+      "type": "string",
+      "defaultValue": "169.254.169.254/32",
+      "metadata": {
+        "description": "CIDR value of network that is allowed to monitor the Icinga environment"
+      }
+    },
     "pagerdutyApiKey": {
       "type": "string",
       "metadata": {
@@ -216,6 +230,9 @@
           "namespace": {
             "value": "[parameters('namespace')]"
           },
+          "allowedNetwork": {
+            "value": "[parameters('allowedNetwork')]"
+          },
           "vmbasename": {
             "value": "[concat(parameters('namespace'), '-ciinabox-host')]"
           },
@@ -274,6 +291,12 @@
           },
           "vmbasename": {
             "value": "[concat(parameters('namespace'), '-icinga-host')]"
+          },
+          "allowedNetwork": {
+            "value": "[parameters('allowedNetwork')]"
+          },
+          "monitoringNetwork": {
+            "value": "[parameters('monitoringNetwork')]"
           },
           "subnet": {
             "value": "[variables('networkSettings').subnet.dse]"

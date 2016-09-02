@@ -26,6 +26,12 @@
     "pagerdutyApiKey": {
       "type": "string"
     },
+    "allowedNetwork": {
+      "type": "string"
+    },
+    "monitoringNetwork": {
+      "type": "string"
+    },
     "vmSize": {
       "type": "string"
     },
@@ -66,10 +72,38 @@
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
-              "sourceAddressPrefix": "*",
+              "sourceAddressPrefix": "[parameters('allowedNetwork')]",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "NRPE",
+            "properties": {
+              "description": "Allows NRPE traffic from external source to monitor icinga env",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "5666",
+              "sourceAddressPrefix": "[parameters('monitoringNetwork')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Deny-all",
+            "properties": {
+              "description": "Else deny-all rule",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 1000,
               "direction": "Inbound"
             }
           }

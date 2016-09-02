@@ -23,6 +23,9 @@
     "osSettings": {
       "type": "object"
     },
+    "allowedNetwork": {
+      "type": "string"
+    },
     "vmSize": {
       "type": "string"
     },
@@ -63,10 +66,38 @@
               "protocol": "Tcp",
               "sourcePortRange": "*",
               "destinationPortRange": "22",
-              "sourceAddressPrefix": "*",
+              "sourceAddressPrefix": "[parameters('allowedNetwork')]",
               "destinationAddressPrefix": "*",
               "access": "Allow",
               "priority": 100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Web",
+            "properties": {
+              "description": "Allows web traffic from allowed network to the instance",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "80",
+              "sourceAddressPrefix": "[parameters('allowedNetwork')]",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 110,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "Deny-all",
+            "properties": {
+              "description": "Else deny-all rule",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 1000,
               "direction": "Inbound"
             }
           }
