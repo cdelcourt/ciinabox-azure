@@ -26,7 +26,7 @@ mount /data && echo \"Data volume already formatted\" || mkfs -F -t ext4 /dev/sd
 mount -a && echo 'Mounting Data volume' || echo 'Failed to mount Data volume'
 
 # Install docker
-curl -fsSL https://get.docker.com/ | sh
+docker ps || curl -fsSL https://get.docker.com/ | sh
 service docker start
 
 # Install git
@@ -40,9 +40,13 @@ chmod -R 777 /etc/chef
 git clone https://github.com/base2Services/base2-icinga2-docker-cookbook.git /etc/chef/cookbooks/base2-icinga2-docker
 
 # Install RVM for later version of ruby/gem than CentOS base repo provides
-curl -sSL https://get.rvm.io | bash -s stable --ruby
-source /etc/profile.d/rvm.sh
-rvm install 2.3.1
+#curl -sSL https://get.rvm.io | bash
+#source /etc/profile.d/rvm.sh
+#rvm install 2.3.1
+
+# Install Ruby from Repo
+yum -y install centos-release-scl-rh centos-release-scl
+yum --enablerepo=centos-sclo-rh -y install rh-ruby22
 
 # Install berkshelf for cookbook dependancies
 gem install berkshelf

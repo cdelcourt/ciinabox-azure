@@ -50,6 +50,19 @@
         "description": "Administrator user name used when provisioning virtual machines"
       }
     },
+    "stackOctet": {
+      "type": "string",
+      "defaultValue": "100",
+      "metadata": {
+        "description": "Value of second network octet"
+      }
+    },
+    "pagerdutyApiKey": {
+      "type": "string",
+      "metadata": {
+        "description": "Your API key for Pagerduty to integrate with Icinga2"
+      }
+    },
     "sshKeyData": {
         "type": "String",
         "metadata": {
@@ -107,11 +120,11 @@
 	"apiVersion": "2015-01-01",
     "networkSettings": {
       "virtualNetworkName": "[parameters('virtualNetworkName')]",
-      "addressPrefix": "10.0.0.0/16",
+      "addressPrefix": "[concat('10.' parameters('stackOctet'), '0.0/16')]",
       "subnet": {
         "dse": {
           "name": "dse",
-          "prefix": "10.0.0.0/24",
+          "prefix": "[concat('10.' parameters('stackOctet'), '0.0/24')]",
           "vnet": "[parameters('virtualNetworkName')]"
         }
       },
@@ -120,8 +133,8 @@
           "base": "10.0.0.",
           "start": 5
         },
-        "ciinaboxip": "10.0.0.50",
-        "icingaip": "10.0.0.100"
+        "ciinaboxip": "[concat('10.' parameters('stackOctet'), '0.50')]",
+        "icingaip": "[concat('10.' parameters('stackOctet'), '0.100')]"
       }
     },
     "ciinaboxOsSettings": {
@@ -252,6 +265,9 @@
           },
           "sshKeyData": {
             "value": "[parameters('sshKeyData')]"
+          },
+          "pagerdutyApiKey": {
+            "value": "[parameters('pagerdutyApiKey')]"
           },
           "namespace": {
             "value": "[parameters('namespace')]"

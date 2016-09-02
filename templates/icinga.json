@@ -23,6 +23,9 @@
     "osSettings": {
       "type": "object"
     },
+    "pagerdutyApiKey": {
+      "type": "string"
+    },
     "vmSize": {
       "type": "string"
     },
