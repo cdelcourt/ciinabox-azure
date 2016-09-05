@@ -3,7 +3,7 @@
 export REGION=$1
 export AZURE_TAG_ROLE=$2
 export ENVIRONMENT_TYPE=$3
-export DOMAIN_NAME=$4
+export ORG_NAME=$4
 export PAGERDUTY_API_KEY=$5
 
 export HOME=/root
@@ -13,7 +13,9 @@ export HOME=/root
 rpm -qa | grep -qw "epel-release" || yum install -y epel-release
 rpm -qa | grep -qw nodejs || curl --silent --location https://rpm.nodesource.com/setup_4.x | bash - && yum install -y nodejs && npm install -g azure-cli
 rpm -qa | grep -qw python-pip || yum install -y python-pip
-rpm -qa | grep -qw chef || yum install -y https://packages.chef.io/stable/el/7/chef-12.10.24-1.el7.x86_64.rpm
+rpm -qa | grep -qw chef || yum install -y https://packages.chef.io/stable/el/7/chefdk-0.17.17-1.el7.x86_64.rpm
+
+eval "$(/opt/chefdk/bin/chef shell-init bash)"
 
 if [ -f /etc/profile.d/env.sh ]; then
   source /etc/profile.d/env.sh
@@ -46,7 +48,7 @@ cat <<EOT > /etc/chef/override.json
       "pagerduty": {
         "api_key": "$PAGERDUTY_API_KEY"
       },
-      "org": "$DOMAIN_NAME"
+      "org": "$ORG_NAME"
     }
   }
 }
@@ -60,12 +62,13 @@ git clone https://github.com/base2Services/base2-icinga2-docker-cookbook.git /et
 #source /etc/profile.d/rvm.sh
 #rvm install 2.3.1
 
-# Install Ruby from Repo
-yum -y install centos-release-scl-rh centos-release-scl
-yum --enablerepo=centos-sclo-rh -y install rh-ruby22
+# Install Ruby from Repo and enable
+#yum -y install centos-release-scl-rh centos-release-scl
+#yum --enablerepo=centos-sclo-rh -y install rh-ruby23
+#scl enable rh-ruby23 bash
 
 # Install berkshelf for cookbook dependancies
-gem install berkshelf
+#gem install berkshelf
 
 cd /etc/chef/cookbooks/base2-icinga2-docker
 berks install
@@ -73,4 +76,4 @@ berks vendor /etc/chef/cookbooks/
 
 # Run chef
 cd /etc/chef
-/opt/chef/bin/chef-client --local-mode -j /etc/chef/override.json -o "recipe[base2-icinga2-docker::install],recipe[base2-icinga2-docker::run]" > /etc/chef/bootstrap.log
+/opt/chefdk/bin/chef-client --local-mode -j /etc/chef/override.json -o "recipe[base2-icinga2-docker::install],recipe[base2-icinga2-docker::run]" > /etc/chef/bootstrap.log
