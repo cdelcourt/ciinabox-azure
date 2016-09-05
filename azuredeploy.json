@@ -144,7 +144,7 @@
       },
       "statics": {
         "clusterRange": {
-          "base": "10.0.0.",
+          "base": "[concat('10.', parameters('stackOctet'), '.0.')]",
           "start": 5
         },
         "ciinaboxip": "[concat('10.', parameters('stackOctet'), '.0.50')]",

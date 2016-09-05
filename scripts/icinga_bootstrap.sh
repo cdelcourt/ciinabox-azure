@@ -74,6 +74,11 @@ cd /etc/chef/cookbooks/base2-icinga2-docker
 berks install
 berks vendor /etc/chef/cookbooks/
 
+#Disable SELinux that prevents issues with the icinga container
+cp /etc/sysconfig/selinux /etc/sysconfig/selinux.bak
+cat /etc/sysconfig/selinux.bak | sed s/"SELINUX=enforcing"/"SELINUX=disabled"/g > /etc/sysconfig/selinux
+setenforce 0
+
 # Run chef
 cd /etc/chef
 /opt/chefdk/bin/chef-client --local-mode -j /etc/chef/override.json -o "recipe[base2-icinga2-docker::install],recipe[base2-icinga2-docker::run]" > /etc/chef/bootstrap.log
